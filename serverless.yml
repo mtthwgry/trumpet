@@ -1,0 +1,49 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service:
+  name: ${self:custom.engineerName}-TrumpetFunction
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+frameworkVersion: =1.26.1
+
+custom:
+  engineerName: YOUR_NAME_HERE
+  beta:
+    region: us-east-2
+    memorySize: 512
+
+provider:
+  name: aws
+  stage: ${opt:stage, 'beta'}
+  runtime: java8
+  region: ${self:custom.${self:provider.stage}.region}
+  role: arn:aws:iam::${env:AWS_ACCOUNT_NUMBER}:role/lambda_basic_execution
+  logRetentionInDays: 30
+  deploymentBucket:
+    name: oh-microservices-lambda-${self:provider.stage}
+    serverSideEncryption: AES256
+
+package:
+  artifact: build/libs/trumpet-1.0-SNAPSHOT.jar
+
+functions:
+  trumpet:
+    handler: com.mtthwgry.trumpet.TrumpetFunction::handleRequest
+    name: ${self:custom.engineerName}-TrumpetFunction-${self:provider.stage}
+    description: Build a Trump Tweet!
+    memorySize: ${self:custom.${self:provider.stage}.memorySize}
+    timeout: 10
+    environment:
+      FOO: bar
